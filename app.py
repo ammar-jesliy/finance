@@ -61,15 +61,19 @@ def index():
         db.execute("UPDATE transactions SET current_price = ?, total = ? WHERE symbol = ? AND user_id = ?", price, total, look[i]["symbol"], session["user_id"])
 
     # store information to print in the table in index.html through a loop
-    rows = db.execute("SELECT symbol, name, SUM(amount), current_price, total FROM transactions WHERE user_id = ? GROUP BY symbol", session["user_id"])
+    rows = db.execute("SELECT symbol, name, SUM(amount), current_price, total FROM transactions WHERE user_id = ? AND total <> 0 GROUP BY symbol", session["user_id"])
+
 
     # extract cash balance
     balance = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
+
+    if len(balance) == 0:
+        return redirect("/login")
+
     cash = balance[0]["cash"]
 
     # total of the cash remaining and stocks in hand
     sum = sum + cash
-
 
     return render_template("index.html", rows=rows, cash=cash, sum=sum)
 
@@ -121,6 +125,7 @@ def buy():
 @login_required
 def history():
     """Show history of transactions"""
+    
     return apology("TODO")
 
 
@@ -229,4 +234,44 @@ def register():
 @login_required
 def sell():
     """Sell shares of stock"""
-    return apology("TODO")
+    # store the symbools of stocks owned by the user in a dict
+    rows = db.execute("SELECT symbol FROM transactions WHERE user_id = ? AND total <> 0 GROUP BY symbol", session["user_id"])
+
+    if request.method == "POST":
+        stock_info = lookup(request.form.get("symbol"))
+        symbol = request.form.get("symbol")
+        shares = int(request.form.get("shares"))
+
+        # calculate amount of shares as negative because we are selling shares
+        neg = shares * (-1)
+        total = stock_info["price"] * neg
+
+        # transaction time
+        now = datetime.now()
+        time = now.strftime("%d-%m-%Y %H:%M:%S")
+
+        # store the remaining shares of a company in a dict
+        rem = db.execute("SELECT symbol, SUM(amount) FROM transactions WHERE user_id = ? AND symbol = ? GROUP BY symbol", session["user_id"], symbol)
+
+        # validate the input
+        if shares < 1:
+            return apology("invalid amount")
+
+        if shares > rem[0]["SUM(amount)"]:
+            return apology("less shares available")
+
+        # insert the transaction details into the database
+        db.execute("INSERT INTO transactions (user_id, symbol, name, amount, price, current_price, total, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", session["user_id"], stock_info["symbol"], stock_info["name"], neg, stock_info["price"], stock_info["price"], total, time)
+
+        # update cash balance
+        temp = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
+        cash_rem = temp[0]["cash"]
+
+        balance = cash_rem - total
+
+        db.execute("UPDATE users SET cash = ? WHERE id = ?", balance, session["user_id"])
+
+        return redirect("/")
+
+    else:
+        return render_template("sell.html", rows=rows)
