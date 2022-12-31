@@ -6,7 +6,7 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, lookup, usd
+from helpers import apology, login_required, lookup, usd, isint
 from datetime import datetime
 
 # Configure application
@@ -94,6 +94,9 @@ def buy():
             return apology("incorrect symbol")
 
         if amount < 1:
+            return apology("invalid amount")
+
+        if isint(amount) == 0:
             return apology("invalid amount")
 
         # subtract the cash used for the transaction from the total cash the user has.
