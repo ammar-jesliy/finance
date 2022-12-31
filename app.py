@@ -86,7 +86,7 @@ def buy():
     if request.method == "POST":
 
         stock_info = lookup(request.form.get("symbol"))
-        amount = int(request.form.get("shares"))
+        amount = float(request.form.get("shares"))
         now = datetime.now()
         time = now.strftime("%d-%m-%Y %H:%M:%S")
 
@@ -125,7 +125,7 @@ def buy():
 @login_required
 def history():
     """Show history of transactions"""
-    
+
     return apology("TODO")
 
 
