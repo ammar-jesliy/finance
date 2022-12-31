@@ -96,7 +96,7 @@ def buy():
         if amount < 1:
             return apology("invalid amount")
 
-        if isinstance(amount, int):
+        if not isinstance(amount, int):
             return apology("invalid amount")
 
         # subtract the cash used for the transaction from the total cash the user has.
