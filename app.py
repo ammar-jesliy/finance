@@ -97,14 +97,14 @@ def buy():
         if stock_info == None:
             return apology("incorrect symbol")
 
-        if int(amount) < 1:
+        if int(float(amount)) < 1:
             return apology("invalid amount")
 
         # subtract the cash used for the transaction from the total cash the user has.
         row = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         cash_rem = row[0]["cash"]
 
-        total = stock_info["price"] * int(amount)
+        total = stock_info["price"] * int(float(amount))
 
         # if the remaining cash is less than the cash used for the transaction, return an apology
         if cash_rem < total:
@@ -112,10 +112,10 @@ def buy():
 
         # insert the values into the transaction table
         db.execute("INSERT INTO transactions (user_id, symbol, name, amount, price, current_price, total, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                   session["user_id"], stock_info["symbol"], stock_info["name"], int(amount), stock_info["price"], stock_info["price"], total, time)
+                   session["user_id"], stock_info["symbol"], stock_info["name"], int(float(amount)), stock_info["price"], stock_info["price"], total, time)
 
         # subtract the cash used for transaction from the cash remaining
-        balance = cash_rem - stock_info["price"] * int(amount)
+        balance = cash_rem - stock_info["price"] * int(float(amount))
 
         # update the cash balance to the database
         db.execute("UPDATE users SET cash = ? WHERE id = ?", balance, session["user_id"])
