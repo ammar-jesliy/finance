@@ -63,9 +63,3 @@ def usd(value):
     """Format value as USD."""
     return f"${value:,.2f}"
 
-
-def isInt(x):
-    if x%1 == 0:
-        return 1
-    else:
-        return 0
