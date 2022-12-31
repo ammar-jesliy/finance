@@ -58,11 +58,12 @@ def index():
         price = current["price"]
         total = look[i]["SUM(amount)"] * price
         sum = sum + total
-        db.execute("UPDATE transactions SET current_price = ?, total = ? WHERE symbol = ? AND user_id = ?", price, total, look[i]["symbol"], session["user_id"])
+        db.execute("UPDATE transactions SET current_price = ?, total = ? WHERE symbol = ? AND user_id = ?",
+                   price, total, look[i]["symbol"], session["user_id"])
 
     # store information to print in the table in index.html through a loop
-    rows = db.execute("SELECT symbol, name, SUM(amount), current_price, total FROM transactions WHERE user_id = ? AND total <> 0 GROUP BY symbol", session["user_id"])
-
+    rows = db.execute(
+        "SELECT symbol, name, SUM(amount), current_price, total FROM transactions WHERE user_id = ? AND total <> 0 GROUP BY symbol", session["user_id"])
 
     # extract cash balance
     balance = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
@@ -86,7 +87,7 @@ def buy():
     if request.method == "POST":
 
         stock_info = lookup(request.form.get("symbol"))
-        amount = float(request.form.get("shares"))
+        amount = int(request.form.get("shares"))
         now = datetime.now()
         time = now.strftime("%d-%m-%Y %H:%M:%S")
 
@@ -94,9 +95,6 @@ def buy():
             return apology("incorrect symbol")
 
         if amount < 1:
-            return apology("invalid amount")
-
-        if not isinstance(amount, int):
             return apology("invalid amount")
 
         # subtract the cash used for the transaction from the total cash the user has.
@@ -110,7 +108,8 @@ def buy():
             return apology("u brokie")
 
         # insert the values into the transaction table
-        db.execute("INSERT INTO transactions (user_id, symbol, name, amount, price, current_price, total, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", session["user_id"], stock_info["symbol"], stock_info["name"], amount, stock_info["price"], stock_info["price"], total, time)
+        db.execute("INSERT INTO transactions (user_id, symbol, name, amount, price, current_price, total, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                   session["user_id"], stock_info["symbol"], stock_info["name"], amount, stock_info["price"], stock_info["price"], total, time)
 
         # subtract the cash used for transaction from the cash remaining
         balance = cash_rem - stock_info["price"] * amount
@@ -129,7 +128,10 @@ def buy():
 def history():
     """Show history of transactions"""
 
-    return apology("TODO")
+    # store table information in a dict
+    rows = db.execute("SELECT * FROM transactions WHERE user_id = ?", session["user_id"])
+
+    return render_template("history.html", rows=rows)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -231,14 +233,13 @@ def register():
         return render_template("register.html")
 
 
-
-
 @app.route("/sell", methods=["GET", "POST"])
 @login_required
 def sell():
     """Sell shares of stock"""
     # store the symbools of stocks owned by the user in a dict
-    rows = db.execute("SELECT symbol FROM transactions WHERE user_id = ? AND total <> 0 GROUP BY symbol", session["user_id"])
+    rows = db.execute(
+        "SELECT symbol FROM transactions WHERE user_id = ? AND total <> 0 GROUP BY symbol", session["user_id"])
 
     if request.method == "POST":
         stock_info = lookup(request.form.get("symbol"))
@@ -254,7 +255,8 @@ def sell():
         time = now.strftime("%d-%m-%Y %H:%M:%S")
 
         # store the remaining shares of a company in a dict
-        rem = db.execute("SELECT symbol, SUM(amount) FROM transactions WHERE user_id = ? AND symbol = ? GROUP BY symbol", session["user_id"], symbol)
+        rem = db.execute(
+            "SELECT symbol, SUM(amount) FROM transactions WHERE user_id = ? AND symbol = ? GROUP BY symbol", session["user_id"], symbol)
 
         # validate the input
         if shares < 1:
@@ -264,7 +266,8 @@ def sell():
             return apology("less shares available")
 
         # insert the transaction details into the database
-        db.execute("INSERT INTO transactions (user_id, symbol, name, amount, price, current_price, total, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", session["user_id"], stock_info["symbol"], stock_info["name"], neg, stock_info["price"], stock_info["price"], total, time)
+        db.execute("INSERT INTO transactions (user_id, symbol, name, amount, price, current_price, total, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                   session["user_id"], stock_info["symbol"], stock_info["name"], neg, stock_info["price"], stock_info["price"], total, time)
 
         # update cash balance
         temp = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
