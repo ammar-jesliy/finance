@@ -46,7 +46,7 @@ def index():
     """Show portfolio of stocks"""
 
     sum = 0
-    
+
     # find a way to extract the total of the transaction from a single type of share so you can print the details in a loop
 
     # store the total of one type of share owned by the user in a dictionary
@@ -177,7 +177,7 @@ def quote():
     """Get stock quote."""
     if request.method == "POST":
         # display the price after looking up the symbol
-        symbol = request.form.get("quote")
+        symbol = request.form.get("symbol")
         quote = lookup(symbol)
 
         if quote == None:
