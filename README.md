@@ -1,14 +1,23 @@
 # Finance - A Stock Trader Web App
 
-Welcome to the Stock Trader Web App! This Flask application allows users to buy and sell stocks in a simulated stock market environment. Users can create accounts, manage their portfolios, and track their transactions seamlessly.
+Welcome to Finance, the Stock Trader Web App! This Flask application allows users to buy and sell stocks in a simulated stock market environment. Users can create accounts, manage their portfolios, and track their transactions seamlessly. The project is a part of the CS50x course and utilizes the IEX API for real-time stock data.
 
 ## Features
 
 - __User Authentication:__ Users can create accounts and securely log in to manage their portfolios.
 - __Stock Market Simulation:__ Utilizes real-time stock data to simulate a dynamic stock market environment.
-- __Buy and Sell Stocks:__ Users can buy stocks at current market prices and sell stocks from their portfolio.
+- __Buy and Sell Stocks:__ Users can buy and sell stocks using real-time data fetched from the IEX API.
 - __Portfolio Management:__ Users can view their current portfolio holdings and track their investment performance over time.
 - __Transaction History:__ Detailed transaction history is provided to users for transparent tracking of their trades.
+
+## Technologies used
+
+- Flask
+- HTML
+- CSS
+- SQLite3
+- Python
+- IEX API
 
 ## Getting Started
 To run the Stock Trader Web App locally on your machine, follow these steps:
